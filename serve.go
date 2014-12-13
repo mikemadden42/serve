@@ -5,6 +5,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,7 +13,16 @@ import (
 )
 
 func main() {
-	port := 8080
+	portPtr := flag.Int("port", 8080, "http port")
+
+	flag.Parse()
+	if flag.NFlag() == 0 {
+		flag.Usage()
+		os.Exit(1)
+	}
+	
+	port := *portPtr
+
 	addr := fmt.Sprintf(":%v", port)
 
 	pwd, err := os.Getwd()
