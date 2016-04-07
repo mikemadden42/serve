@@ -20,7 +20,7 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
-	
+
 	port := *portPtr
 
 	addr := fmt.Sprintf(":%v", port)
