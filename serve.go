@@ -1,6 +1,6 @@
-// http://golang.org/pkg/net/http/#example_FileServer
 // http://stackoverflow.com/questions/11123865/golang-format-a-string-without-printing
 // http://stackoverflow.com/questions/18537257/golang-how-to-get-the-directory-of-the-currently-running-file
+// http://stackoverflow.com/questions/34017342/log-404-on-http-fileserver
 
 package main
 
@@ -22,7 +22,6 @@ func main() {
 	}
 
 	port := *portPtr
-
 	addr := fmt.Sprintf(":%v", port)
 
 	pwd, err := os.Getwd()
@@ -56,6 +55,6 @@ func wrapHandler(h http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		srw := &StatusRespWr{ResponseWriter: w}
 		h.ServeHTTP(srw, r)
-		log.Printf("-> status code: %d, path: %s", srw.status, r.RequestURI)
+		log.Printf("-> status code: %d, path: %s, host: %s", srw.status, r.RequestURI, r.RemoteAddr)
 	}
 }
