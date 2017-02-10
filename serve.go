@@ -31,8 +31,31 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Serving %v on port %v", pwd, port)
+	fmt.Printf("Serving %v on port %v\n", pwd, port)
 
-	// Simple static webserver:
-	log.Fatal(http.ListenAndServe(addr, http.FileServer(http.Dir(pwd))))
+	// https://golang.org/pkg/net/http/#example_FileServer
+	//log.Fatal(http.ListenAndServe(addr, http.FileServer(http.Dir(pwd))))
+	log.Fatal(http.ListenAndServe(addr, wrapHandler(http.FileServer(http.Dir(pwd)))))
+
+	// https://golang.org/pkg/net/http/#example_FileServer_stripPrefix
+	//http.HandleFunc("/o/", wrapHandler(http.StripPrefix("/o", http.FileServer(http.Dir(pwd)))))
+	//panic(http.ListenAndServe(addr, nil))
+}
+
+type StatusRespWr struct {
+	http.ResponseWriter
+	status int
+}
+
+func (w *StatusRespWr) WriteHeader(status int) {
+	w.status = status
+	w.ResponseWriter.WriteHeader(status)
+}
+
+func wrapHandler(h http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		srw := &StatusRespWr{ResponseWriter: w}
+		h.ServeHTTP(srw, r)
+		log.Printf("-> status code: %d, path: %s", srw.status, r.RequestURI)
+	}
 }
