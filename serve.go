@@ -41,19 +41,19 @@ func main() {
 	//panic(http.ListenAndServe(addr, nil))
 }
 
-type StatusRespWr struct {
+type statusRespWr struct {
 	http.ResponseWriter
 	status int
 }
 
-func (w *StatusRespWr) WriteHeader(status int) {
+func (w *statusRespWr) WriteHeader(status int) {
 	w.status = status
 	w.ResponseWriter.WriteHeader(status)
 }
 
 func wrapHandler(h http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		srw := &StatusRespWr{ResponseWriter: w}
+		srw := &statusRespWr{ResponseWriter: w}
 		h.ServeHTTP(srw, r)
 		log.Printf("-> status code: %d, path: %s, host: %s", srw.status, r.RequestURI, r.RemoteAddr)
 	}
