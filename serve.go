@@ -31,14 +31,7 @@ func main() {
 	}
 
 	fmt.Printf("Serving %v on port %v\n", pwd, port)
-
-	// https://golang.org/pkg/net/http/#example_FileServer
-	//log.Fatal(http.ListenAndServe(addr, http.FileServer(http.Dir(pwd))))
 	log.Fatal(http.ListenAndServe(addr, wrapHandler(http.FileServer(http.Dir(pwd)))))
-
-	// https://golang.org/pkg/net/http/#example_FileServer_stripPrefix
-	//http.HandleFunc("/o/", wrapHandler(http.StripPrefix("/o", http.FileServer(http.Dir(pwd)))))
-	//panic(http.ListenAndServe(addr, nil))
 }
 
 type statusRespWr struct {
