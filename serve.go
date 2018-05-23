@@ -47,7 +47,8 @@ func (w *statusRespWr) WriteHeader(status int) {
 func wrapHandler(h http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		srw := &statusRespWr{ResponseWriter: w}
+		userAgent := r.Header.Get("User-Agent")
 		h.ServeHTTP(srw, r)
-		log.Printf("-> status code: %d, path: %s, host: %s", srw.status, r.RequestURI, r.RemoteAddr)
+		log.Printf("%s - [%s %s %s] %d [%s]", r.RemoteAddr, r.Method, r.URL.Path, r.Proto, srw.status, userAgent)
 	}
 }
