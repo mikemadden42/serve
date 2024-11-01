@@ -10,11 +10,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
 	portPtr := flag.Int("port", 8080, "http port")
-
 	flag.Parse()
 	if flag.NFlag() == 0 {
 		flag.Usage()
@@ -31,7 +31,18 @@ func main() {
 	}
 
 	fmt.Printf("Serving %v on port %v\n", pwd, port)
-	log.Fatal(http.ListenAndServe(addr, wrapHandler(http.FileServer(http.Dir(pwd)))))
+
+	// Define the server with timeouts
+	server := &http.Server{
+		Addr:         addr,
+		Handler:      wrapHandler(http.FileServer(http.Dir(pwd))),
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}
+
+	// Start the server with log.Fatal for error handling
+	log.Fatal(server.ListenAndServe())
 }
 
 type statusRespWr struct {
