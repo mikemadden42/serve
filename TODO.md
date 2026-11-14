@@ -40,7 +40,7 @@ Findings from a project review (2026-11-14).
 - [x] Bump `go.mod` from `go 1.18` to the minimum version actually supported (CI tests
       oldstable and stable).
 - [x] CI: add a `golangci-lint-action` step.
-- [ ] Add tests (`go test` currently runs nothing).
+- [x] Add tests (`go test` currently runs nothing).
 - [x] `.goreleaser.yaml`: add `version: 2`; remove the no-op `go generate` hook.
 - [x] `.gitignore`: remove stray `sumdir`; ignore the `serve` binary.
 - [x] README: document usage and flags.
