@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -139,5 +140,44 @@ func TestLogQuotesPathAndUserAgent(t *testing.T) {
 		if !strings.Contains(out, want) {
 			t.Errorf("log = %q, want it to contain %s", out, want)
 		}
+	}
+}
+
+// readerFromRecorder is a ResponseRecorder that records whether ReadFrom was used.
+type readerFromRecorder struct {
+	*httptest.ResponseRecorder
+	called bool
+}
+
+func (r *readerFromRecorder) ReadFrom(src io.Reader) (int64, error) {
+	r.called = true
+	return io.Copy(r.ResponseRecorder, src)
+}
+
+func TestReadFromPassesThrough(t *testing.T) {
+	under := &readerFromRecorder{ResponseRecorder: httptest.NewRecorder()}
+	srw := &statusRespWr{ResponseWriter: under, status: http.StatusOK}
+
+	// Mirror http.ServeContent, which copies through io.CopyN (a LimitReader,
+	// so the source's WriteTo can't short-circuit the writer's ReadFrom).
+	if _, err := io.CopyN(srw, strings.NewReader("payload"), 7); err != nil {
+		t.Fatal(err)
+	}
+	if !under.called {
+		t.Error("underlying ReadFrom was not used")
+	}
+	if got := under.Body.String(); got != "payload" {
+		t.Errorf("body = %q, want %q", got, "payload")
+	}
+	if srw.status != http.StatusOK {
+		t.Errorf("status = %d, want %d", srw.status, http.StatusOK)
+	}
+}
+
+func TestUnwrap(t *testing.T) {
+	rec := httptest.NewRecorder()
+	srw := &statusRespWr{ResponseWriter: rec}
+	if srw.Unwrap() != rec {
+		t.Error("Unwrap did not return the underlying writer")
 	}
 }
