@@ -37,10 +37,10 @@ Findings from a project review (2026-11-14).
       (must be `"2"`); these are silently ignored. Use `linters.default: none`,
       `linters.settings`, `formatters.settings.goimports.local-prefixes: [...]`,
       `linters.exclusions.paths` — or run `golangci-lint migrate`.
-- [ ] Bump `go.mod` from `go 1.18` to the minimum version actually supported (CI tests
+- [x] Bump `go.mod` from `go 1.18` to the minimum version actually supported (CI tests
       oldstable and stable).
 - [x] CI: add a `golangci-lint-action` step.
 - [ ] Add tests (`go test` currently runs nothing).
-- [ ] `.goreleaser.yaml`: add `version: 2`; remove the no-op `go generate` hook.
-- [ ] `.gitignore`: remove stray `sumdir`; ignore the `serve` binary.
-- [ ] README: document usage and flags.
+- [x] `.goreleaser.yaml`: add `version: 2`; remove the no-op `go generate` hook.
+- [x] `.gitignore`: remove stray `sumdir`; ignore the `serve` binary.
+- [x] README: document usage and flags.
