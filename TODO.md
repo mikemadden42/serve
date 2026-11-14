@@ -27,19 +27,20 @@ Findings from a project review (2026-11-14).
 - [ ] Response writer wrapper hides `io.ReaderFrom` (loses sendfile). Add `Unwrap()` and a
       `ReadFrom` pass-through.
 - [ ] Graceful shutdown on Ctrl-C via `signal.NotifyContext` + `server.Shutdown`.
-- [ ] Replace the Stack Overflow link header with a real `// Command serve ...` package
+- [x] Replace the Stack Overflow link header with a real `// Command serve ...` package
       comment (revive `package-comments`).
 
 ## Tooling
 
-- [ ] **Fix `.golangci.yml` for golangci-lint v2.** `golangci-lint config verify` rejects
+- [x] **Fix `.golangci.yml` for golangci-lint v2.** `golangci-lint config verify` rejects
       `disable-all`, `linters-settings`, `issues.exclude-dirs`, and numeric `version: 2`
       (must be `"2"`); these are silently ignored. Use `linters.default: none`,
       `linters.settings`, `formatters.settings.goimports.local-prefixes: [...]`,
       `linters.exclusions.paths` — or run `golangci-lint migrate`.
 - [ ] Bump `go.mod` from `go 1.18` to the minimum version actually supported (CI tests
-      1.23–1.25).
-- [ ] CI: add a `golangci-lint-action` step; add tests (`go test` currently runs nothing).
+      oldstable and stable).
+- [x] CI: add a `golangci-lint-action` step.
+- [ ] Add tests (`go test` currently runs nothing).
 - [ ] `.goreleaser.yaml`: add `version: 2`; remove the no-op `go generate` hook.
 - [ ] `.gitignore`: remove stray `sumdir`; ignore the `serve` binary.
 - [ ] README: document usage and flags.

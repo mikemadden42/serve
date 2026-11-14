@@ -1,7 +1,7 @@
-// http://stackoverflow.com/questions/11123865/golang-format-a-string-without-printing
-// http://stackoverflow.com/questions/18537257/golang-how-to-get-the-directory-of-the-currently-running-file
-// http://stackoverflow.com/questions/34017342/log-404-on-http-fileserver
-
+// Command serve is a simple HTTP file server for the current directory.
+//
+// It listens on 127.0.0.1:8080 by default, hides dotfiles, and logs each
+// request. Use -bind 0.0.0.0 to serve on all interfaces.
 package main
 
 import (
@@ -105,6 +105,7 @@ func wrapHandler(h http.Handler) http.HandlerFunc {
 		srw := &statusRespWr{ResponseWriter: w, status: http.StatusOK}
 		userAgent := r.Header.Get("User-Agent")
 		h.ServeHTTP(srw, r)
+		//nolint:gosec // G706: path and user agent are %q-quoted; method and proto are validated by net/http
 		log.Printf("%s - [%s %q %s] %d [%q]", r.RemoteAddr, r.Method, r.URL.Path, r.Proto, srw.status, userAgent)
 	}
 }
