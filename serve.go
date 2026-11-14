@@ -16,10 +16,6 @@ import (
 func main() {
 	portPtr := flag.Int("port", 8080, "http port")
 	flag.Parse()
-	if flag.NFlag() == 0 {
-		flag.Usage()
-		os.Exit(1)
-	}
 
 	port := *portPtr
 	addr := fmt.Sprintf(":%v", port)
@@ -34,11 +30,10 @@ func main() {
 
 	// Define the server with timeouts
 	server := &http.Server{
-		Addr:         addr,
-		Handler:      wrapHandler(http.FileServer(http.Dir(pwd))),
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  120 * time.Second,
+		Addr:        addr,
+		Handler:     wrapHandler(http.FileServer(http.Dir(pwd))),
+		ReadTimeout: 10 * time.Second,
+		IdleTimeout: 120 * time.Second,
 	}
 
 	// Start the server with log.Fatal for error handling
@@ -57,9 +52,9 @@ func (w *statusRespWr) WriteHeader(status int) {
 
 func wrapHandler(h http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		srw := &statusRespWr{ResponseWriter: w}
+		srw := &statusRespWr{ResponseWriter: w, status: http.StatusOK}
 		userAgent := r.Header.Get("User-Agent")
 		h.ServeHTTP(srw, r)
-		log.Printf("%s - [%s %s %s] %d [%s]", r.RemoteAddr, r.Method, r.URL.Path, r.Proto, srw.status, userAgent)
+		log.Printf("%s - [%s %q %s] %d [%q]", r.RemoteAddr, r.Method, r.URL.Path, r.Proto, srw.status, userAgent)
 	}
 }
