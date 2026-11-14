@@ -23,10 +23,10 @@ Findings from a project review (2026-11-14).
 
 ## Code
 
-- [ ] Send errors to stderr (`log.Fatal`) instead of `fmt.Println` to stdout (`serve.go:28`).
-- [ ] Response writer wrapper hides `io.ReaderFrom` (loses sendfile). Add `Unwrap()` and a
+- [x] Send errors to stderr (`log.Fatal`) instead of `fmt.Println` to stdout (`serve.go:28`).
+- [x] Response writer wrapper hides `io.ReaderFrom` (loses sendfile). Add `Unwrap()` and a
       `ReadFrom` pass-through.
-- [ ] Graceful shutdown on Ctrl-C via `signal.NotifyContext` + `server.Shutdown`.
+- [x] Graceful shutdown on Ctrl-C via `signal.NotifyContext` + `server.Shutdown`.
 - [x] Replace the Stack Overflow link header with a real `// Command serve ...` package
       comment (revive `package-comments`).
 

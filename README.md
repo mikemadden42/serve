@@ -30,6 +30,8 @@ Behavior:
   from directory listings.
 - Each request is logged to stderr with client address, method, path, protocol,
   status, and user agent.
+- Ctrl-C shuts down gracefully, giving in-flight requests up to 5 seconds to
+  finish. A second Ctrl-C exits immediately.
 
 ## Development
 

@@ -5,17 +5,25 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"io/fs"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
+
+// shutdownTimeout is how long in-flight requests get to finish after Ctrl-C.
+const shutdownTimeout = 5 * time.Second
 
 func main() {
 	portPtr := flag.Int("port", 8080, "http port")
@@ -27,8 +35,7 @@ func main() {
 
 	pwd, err := os.Getwd()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	fmt.Printf("Serving %v on http://%v\n", pwd, addr)
@@ -41,8 +48,24 @@ func main() {
 		IdleTimeout: 120 * time.Second,
 	}
 
-	// Start the server with log.Fatal for error handling
-	log.Fatal(server.ListenAndServe())
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	go func() {
+		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal(err)
+		}
+	}()
+
+	<-ctx.Done()
+	stop() // a second Ctrl-C kills the process immediately
+	log.Println("shutting down")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		log.Printf("shutdown: %v", err)
+	}
 }
 
 // containsDotFile reports whether any element of name begins with a period.
@@ -98,6 +121,17 @@ type statusRespWr struct {
 func (w *statusRespWr) WriteHeader(status int) {
 	w.status = status
 	w.ResponseWriter.WriteHeader(status)
+}
+
+// ReadFrom copies straight to the underlying writer, so io.Copy uses its
+// io.ReaderFrom and file downloads keep using sendfile.
+func (w *statusRespWr) ReadFrom(r io.Reader) (int64, error) {
+	return io.Copy(w.ResponseWriter, r)
+}
+
+// Unwrap returns the underlying writer for http.ResponseController.
+func (w *statusRespWr) Unwrap() http.ResponseWriter {
+	return w.ResponseWriter
 }
 
 func wrapHandler(h http.Handler) http.HandlerFunc {
