@@ -15,7 +15,7 @@ Findings from a project review (2026-11-14).
 
 ## Security
 
-- [ ] **Listens on all interfaces and serves dotfiles.** `":port"` binds every interface and
+- [x] **Listens on all interfaces and serves dotfiles.** `":port"` binds every interface and
       `http.FileServer` serves `.git/`, `.env`, etc. Add a `-bind` flag defaulting to
       `127.0.0.1`, and refuse paths with a `.`-prefixed component.
 - [x] **Log injection** (gosec G706, `serve.go:63`). `r.URL.Path` is decoded, so `%0A` can
